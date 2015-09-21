@@ -1,0 +1,91 @@
+---
+title: 'Motor Trend: Which is better Manual or Automatic?'
+author: "Frank Jung"
+date: "21 September 2015"
+output: 
+  pdf_document: 
+    fig_caption: yes
+    fig_crop: no
+    latex_engine: xelatex
+    toc: yes
+classoption: legalpaper    
+---
+
+# Executive Summary
+
+The Executive Summary is a short section that summarizes the purpose, goals, and
+approach of your design project. Reading this summary should give any evaluator
+(or your boss) a clear idea of the problem you are tackling, your approach to
+solving it and roughly where you are in the process. Consider it an abstract or
+overview of your project.
+
+Context: for Motor Trend, a magazine about the automobile industry. Looking at a
+data set of a collection of cars, they are interested in exploring the 
+relationship between a set of variables and miles per gallon (MPG) (outcome). 
+They are particularly interested in the following two questions:
+
+* Is an automatic or manual transmission better for MPG?
+* Quantify the MPG difference between automatic and manual transmissions?
+
+# Exploratory Analysis
+
+```{r setoptions, echo=FALSE, message=FALSE, warning=FALSE}
+require(knitr, quietly = TRUE)
+require(ggplot2, quietly = TRUE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
+```
+```{r initial, echo=FALSE, message=FALSE, warning=FALSE}
+require(datasets)
+data(mtcars)
+attach(mtcars)
+```
+
+The cars dataset contains three categorical observations 
+
+
+# Choose Model
+
+
+# References
+
+* [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
+* Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.
+* [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
+* V/S - [V-shaped](https://en.wikipedia.org/wiki/V_engine) / [Straight](https://en.wikipedia.org/wiki/Straight_engine) engines
+
+# Appendices
+
+## Exploratory Analysis
+
+```{r explore, echo=TRUE, message=FALSE, fig.cap="Exploratory Analysis"}
+str(mtcars)
+
+summary(mtcars)
+
+summary(lm(mpg ~ . - 1, mtcars))$coef
+
+boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
+points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1))
+axis(1, at = c(1, 2), labels = c("automatic", "manual"))
+title(main = "Milage by Transmission Type")
+```
+
+
+## Choose Model
+
+```{r stepwise, fig.cap="Choose Model"}
+# stepwise regression
+library(MASS)
+fit <- lm(mpg ~ ., mtcars)
+step <- stepAIC(fit, direction = "both")
+# display results
+step$anova 
+```
+
+```{r bestfit, fig.cap="Best Model Fit"}
+fit <- lm(mpg ~ wt + qsec + am, mtcars)
+summary(fit)
+round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
+par(mfrow = c(2, 2))
+plot(fit)
+```
