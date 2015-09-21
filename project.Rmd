@@ -13,29 +13,21 @@ classoption: legalpaper
 
 # Executive Summary
 
-The Executive Summary is a short section that summarizes the purpose, goals, and
-approach of your design project. Reading this summary should give any evaluator
-(or your boss) a clear idea of the problem you are tackling, your approach to
-solving it and roughly where you are in the process. Consider it an abstract or
-overview of your project.
-
-Context: for Motor Trend, a magazine about the automobile industry. Looking at a
-data set of a collection of cars, they are interested in exploring the 
-relationship between a set of variables and miles per gallon (MPG) (outcome). 
-They are particularly interested in the following two questions:
-
-* Is an automatic or manual transmission better for MPG?
-* Quantify the MPG difference between automatic and manual transmissions?
+This report seeks to answer the question: Which is better for milage: automatic 
+or manual. Furthermore, can we quantify any milage differences between these two
+transmission types? To answer this question //Motor Trend// has surveyed various
+performance metrics. This report shows that of the many automobile attributes
+surveyed by //Motor Trend//, the inclusion of just a few namely, //Transmission
+Type//, //Weight// and //1/4 mile time// provide a better prediction of milage.
 
 # Exploratory Analysis
 
-```{r setoptions, echo=FALSE, message=FALSE, warning=FALSE}
+```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
 require(ggplot2, quietly = TRUE)
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
-```
-```{r initial, echo=FALSE, message=FALSE, warning=FALSE}
-require(datasets)
+# declare dataset
+require(datasets, quietly = TRUE)
 data(mtcars)
 attach(mtcars)
 ```
@@ -49,21 +41,26 @@ The cars dataset contains three categorical observations
 # References
 
 * [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
-* Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.
+* [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
+* [Report Session Information](#session_information)
 * V/S - [V-shaped](https://en.wikipedia.org/wiki/V_engine) / [Straight](https://en.wikipedia.org/wiki/Straight_engine) engines
 
 # Appendices
 
 ## Exploratory Analysis
 
-```{r explore, echo=TRUE, message=FALSE, fig.cap="Exploratory Analysis"}
+```{r explore, fig.cap="Exploratory Analysis"}
+# note categorical variables am, cyl, vs
 str(mtcars)
 
+# no outliers we need worry about
 summary(mtcars)
 
+# nieve model fit to show relative correlations between all observations
 summary(lm(mpg ~ . - 1, mtcars))$coef
 
+# what does mpg vs am look like?
 boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
 points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1))
 axis(1, at = c(1, 2), labels = c("automatic", "manual"))
@@ -73,8 +70,8 @@ title(main = "Milage by Transmission Type")
 
 ## Choose Model
 
-```{r stepwise, fig.cap="Choose Model"}
-# stepwise regression
+```{r stepwise, fig.cap="Choose Model", echo=FALSE, message=FALSE, warning=FALSE}
+# stepwise regression to determine best model
 library(MASS)
 fit <- lm(mpg ~ ., mtcars)
 step <- stepAIC(fit, direction = "both")
@@ -83,9 +80,16 @@ step$anova
 ```
 
 ```{r bestfit, fig.cap="Best Model Fit"}
+# best model
 fit <- lm(mpg ~ wt + qsec + am, mtcars)
 summary(fit)
 round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
 par(mfrow = c(2, 2))
 plot(fit)
+```
+
+## Session Information
+
+```{r systemconfig, echo=FALSE, , fig.cap="Session Information"}
+sessionInfo()
 ```
