@@ -106,12 +106,32 @@ For tests to select best regressors:
 
 * [Selecting the best model for multiple linear regression](file:///home/frank/study/regmods-032/docs/linear-regression-model-selection.pdf)
 
+* [MASS step AIC](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/stepAIC.html)
+
+
+# To Read
+
+* https://beckmw.wordpress.com/2013/02/05/collinearity-and-stepwise-vif-selection/
+
 # Code tests
 
-```{r summary}
-library(datasets)
+```{r setoptions, echo=FALSE}
+require(knitr, quietly = TRUE)
+require(printr, quietly = TRUE)
+require(ggplot2, quietly = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
+```
+
+```{r load}
+# declare dataset
+require(datasets, quietly = TRUE)
 data("mtcars")
+```
+
+
+```{r summary}
 str(mtcars)
+kable(head(mtcars),align = 'c')
 ```
 
 ```{r fitall}
@@ -141,3 +161,31 @@ round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
 par(mfrow = c(2, 2))
 plot(fit)
 ```
+
+```{r mpgvsam}
+# what does mpg vs am look like?
+boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
+with(mtcars, points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1)))
+axis(1, at = c(1, 2), labels = c("automatic", "manual"))
+title(main = "Milage by Transmission Type")
+```
+
+```{r ggpairs}
+# require(GGally)
+# require(ggplot2)
+# ggpairs(mtcars, lower = list(continuous = "smooth"), params = c(method = "loess"))
+```
+
+```{r testmeans}
+test <- t.test(mpg ~ am, data= mtcars)
+test
+```
+
+
+```{r ttestmeans, echo=FALSE}
+h0 <- t.test(mpg ~ am, data = mtcars)
+```
+First lets test if there is a significant difference in mean milage between 
+automatic and manual transmission types. Using a Welch two sample t-test for a 
+null hypothesis ($H_0$) that the mean milage is the same for automatic and
+manual, returns a significant p-value of about `r round(h0$p.value, 4)`.

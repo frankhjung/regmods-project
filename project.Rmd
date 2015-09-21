@@ -2,94 +2,128 @@
 title: 'Motor Trend: Which is better Manual or Automatic?'
 author: "Frank Jung"
 date: "21 September 2015"
-output: 
-  pdf_document: 
+output:
+  pdf_document:
     fig_caption: yes
     fig_crop: no
     latex_engine: xelatex
     toc: yes
-classoption: legalpaper    
+classoption: legalpaper
 ---
 
 # Executive Summary
 
-This report seeks to answer the question: Which is better for milage: automatic 
-or manual. Furthermore, can we quantify any milage differences between these two
-transmission types? To answer this question //Motor Trend// has surveyed various
-performance metrics. This report shows that of the many automobile attributes
-surveyed by //Motor Trend//, the inclusion of just a few namely, //Transmission
-Type//, //Weight// and //1/4 mile time// provide a better prediction of milage.
-
-# Exploratory Analysis
+This report seeks to answer the question: Which is better for car milage:
+automatic or manual? Furthermore, can we quantify any milage differences between
+these two transmission types? To answer this question _Motor Trend_ has surveyed
+various performance metrics. In this report we will show that of the many automobile
+attributes surveyed by _Motor Trend_, the inclusion of just a few namely,
+Transmission Type, Weight and 1/4 mile time, provide a better prediction of
+milage than using just the transmission type.
 
 ```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
 require(ggplot2, quietly = TRUE)
+require(scales, quietly = TRUE)
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
-# declare dataset
+
 require(datasets, quietly = TRUE)
 data(mtcars)
-attach(mtcars)
 ```
 
-The cars dataset contains three categorical observations 
+# Exploratory Analysis
 
+A data frame with 32 observations on 11 variables.
 
-# Choose Model
+| Field | Description               |
+|-------|---------------------------|
+| mpg   | Miles/(US) gallon         |
+| cyl   | Number of cylinders (`r sort(unique(mtcars$cyl))`) |
+| disp  | Displacement (cu.in.)     |
+| hp    | Gross horsepower          |
+| drat  | Rear axle ratio           |
+| wt    | Weight (lb/1000)          |
+| qsec  | 1/4 mile time             |
+| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine),  [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) |
+| am    | Transmission (0 = automatic, 1 = manual) |
+| gear  | Number of forward gears (`r sort(unique(mtcars$gear))`) |
+| carb  | Number of carburetors (`r sort(unique(mtcars$carb))`) |
 
+The sample of the first rows from dataset looks like:
+
+```{r head, fig.cap="Exploratory Analysis - Sample"}
+kable(head(mtcars))
+```
+
+How does milage compare to transmission? The boxplot below would indicate that manual transmissions have better milage. However, this could be due to other confounding factors. We will investigate this further in the next section. 
+
+```{r boxplot, fig.cap="Milage by Transmission Type"}
+boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
+with(mtcars, points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1)))
+axis(1, at = c(1, 2), labels = c("automatic", "manual"))
+title(main = "Milage by Transmission Type")
+```
+
+# Simple Linear Model
+
+Consider a simple linear model where we predict the milage (`mpg`) using just
+the categorical variable, transmission (`am`). This returns the coefficients
+
+```{r fit0coef}
+fit0 <- lm(mpg ~ am, mtcars)
+fit0sum <- summary(fit0)
+kable(fit0sum$coef)
+```
+
+Reassuringly the P-value of the slope coefficient is `r fit0sum$coef[2,4]` 
+which indicates there is some amount of linear relationship between milage and
+transmission type. However, the predictions made by this model are just the
+milage sample mean for the respective transmission types:
+
+| Transmission | Prediction | Milage Sample Mean |
+|--------------|------------|--------------------|
+| Automatic | `r round(predict(fit0, data.frame(am = 0)), 3)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 3)` | 
+| Manual | `r round(predict(fit0, data.frame(am = 1)), 3)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 3)` | 
+
+Furthermore, only `r round(fit0sum$adj.r.squared * 100, 3)`% of the variation 
+($R^2$) is explained by this model. Can we do better?
+
+# Multivariable Linear Model
+
+As a alternative look at a multi-variable model. 
+
+```{r stepwise}
+# stepwise regression to determine best model given all observations
+library(MASS)
+fit <- lm(mpg ~ ., mtcars)
+step <- stepAIC(fit, direction = "both", trace = 0)
+# display results
+step$anova
+```
+
+Better Fit
+
+```{r betterfit}
+# better model than mpg ~ am
+fit1 <- lm(mpg ~ am + wt + qsec, mtcars)
+fit1summary <- summary(fit)
+round(fit1summary$r.squared, 3)
+round(cor(mtcars[, c("mpg", "am", "wt", "qsec")]), 3)
+par(mfrow = c(2, 2))
+plot(fit)
+```
 
 # References
 
 * [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
 * [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
-* [Report Session Information](#session_information)
-* V/S - [V-shaped](https://en.wikipedia.org/wiki/V_engine) / [Straight](https://en.wikipedia.org/wiki/Straight_engine) engines
+* [Report session information](#session_information), Figure \ref{fig:si}
 
 # Appendices
 
-## Exploratory Analysis
-
-```{r explore, fig.cap="Exploratory Analysis"}
-# note categorical variables am, cyl, vs
-str(mtcars)
-
-# no outliers we need worry about
-summary(mtcars)
-
-# nieve model fit to show relative correlations between all observations
-summary(lm(mpg ~ . - 1, mtcars))$coef
-
-# what does mpg vs am look like?
-boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
-points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1))
-axis(1, at = c(1, 2), labels = c("automatic", "manual"))
-title(main = "Milage by Transmission Type")
-```
-
-
-## Choose Model
-
-```{r stepwise, fig.cap="Choose Model", echo=FALSE, message=FALSE, warning=FALSE}
-# stepwise regression to determine best model
-library(MASS)
-fit <- lm(mpg ~ ., mtcars)
-step <- stepAIC(fit, direction = "both")
-# display results
-step$anova 
-```
-
-```{r bestfit, fig.cap="Best Model Fit"}
-# best model
-fit <- lm(mpg ~ wt + qsec + am, mtcars)
-summary(fit)
-round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
-par(mfrow = c(2, 2))
-plot(fit)
-```
-
 ## Session Information
 
-```{r systemconfig, echo=FALSE, , fig.cap="Session Information"}
+```{r session}
 sessionInfo()
 ```
