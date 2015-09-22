@@ -25,8 +25,10 @@ mileage than using only the type of transmission.
 require(knitr, quietly = TRUE)
 require(ggplot2, quietly = TRUE)
 require(scales, quietly = TRUE)
+
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", 
                       fig.path = "figure/", fig.align = "center")
+
 # load cars dataset
 require(datasets, quietly = TRUE)
 data(mtcars)
@@ -36,15 +38,15 @@ data(mtcars)
 
 A data frame with 32 observations on 11 variables.
 
-| Field | Description               |
-|-------|---------------------------|
-| mpg   | Miles/(US) gallon         |
+| Field | Description |
+|-------|-------------|
+| mpg   | Miles/(US) gallon |
 | cyl   | Number of cylinders (`r sort(unique(mtcars$cyl))`) |
-| disp  | Displacement (cu.in.)     |
-| hp    | Gross horsepower          |
-| drat  | Rear axle ratio           |
-| wt    | Weight (lb/1000)          |
-| qsec  | 1/4 mile time             |
+| disp  | Displacement (cu.in.) |
+| hp    | Gross horsepower |
+| drat  | Rear axle ratio |
+| wt    | Weight (lb/1000) |
+| qsec  | 1/4 mile time (seconds) |
 | vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine), [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) |
 | am    | Transmission (0 = automatic, 1 = manual) |
 | gear  | Number of forward gears (`r sort(unique(mtcars$gear))`) |
