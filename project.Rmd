@@ -1,7 +1,7 @@
 ---
 title: "Motor Trend: Which is better Manual or Automatic?"
 # author: "Frank Jung"
-# date: "21 September 2015"
+# date: "22 September 2015"
 output:
   pdf_document:
     fig_caption: no
@@ -14,12 +14,12 @@ classoption: legalpaper
 # Executive Summary
 
 This report seeks to answer the question: Which is better for car mileage: 
-automatic or manual? Furthermore, can we quantify any mileage differences between
-these two transmission types? To answer this question _Motor Trend_ has surveyed
-various performance metrics. In this report we will show that of the many 
-auto-mobile attributes surveyed by _Motor Trend_, the inclusion of just a few 
-namely, Transmission Type, Weight and $^1/_4$ mile time, provide a 
-better prediction of mileage than using just the transmission type.
+automatic or manual transmission? Also, can we quantify any mileage differences 
+between these two transmission types? To answer this question _Motor Trend_ has 
+surveyed various motor vehicles. In this report we will show that of the many
+auto-mobile attributes surveyed, the inclusion of just a few namely,
+Transmission Type, Weight and $^1/_4$ mile time, provide a better prediction for
+mileage than using only the type of transmission.
 
 ```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
@@ -50,18 +50,20 @@ A data frame with 32 observations on 11 variables.
 | gear  | Number of forward gears (`r sort(unique(mtcars$gear))`) |
 | carb  | Number of carburettors (`r sort(unique(mtcars$carb))`) |
 
+Table: Fields in mtcars dataset
+
 The sample of the first rows from dataset looks like:
 
 ```{r head}
 kable(head(mtcars), caption = "Sample from mtcars")
 ```
 
-How does mileage compare to transmission? The [Mileage by Transmission
-Type](#appendices) plot would indicate that manual transmissions have better
-mileage. However, this could be due to other confounding factors. We will
+How does mileage compare to transmission? The [Mileage by Transmission 
+Type](#appendices) plot would indicate that manual transmissions have better 
+mileage. However, this could be due to other confounding factors. We will 
 investigate this further in the following sections.
 
-# Simple Linear Model
+# Simple Linear Regression Model
 
 Consider a simple linear model where we predict the mileage (`mpg`) using just 
 the categorical variable, transmission (`am`). This returns the coefficients:
@@ -72,7 +74,7 @@ modelSLRsum <- summary(modelSLR)
 kable(modelSLRsum$coef, caption = "Model Coefficients")
 ```
 
-Reassuringly the P-value of the slope coefficient is ~
+Reassuringly the P-value of the slope coefficient is around
 `r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some 
 amount of linear relationship between mileage and transmission. However, the 
 [predictions](#appendices) made by this model are just the mileage sample mean
@@ -83,25 +85,28 @@ for their respective transmission type:
 | Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 3)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 3)` | 
 | Manual | `r round(predict(modelSLR, data.frame(am = 1)), 3)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 3)` |
 
+Table: Model prediction vs mileage sample mean
+
 This is further demonstrated by the [plots of residual vs fitted
 values](#appendices).
 
 Finally, only about `r round(modelSLRsum$adj.r.squared * 100)`% of the
 variation ($R^2$) is explained by this model. Can we do better?
 
-# Multivariable Linear Model
+# Multi Linear Regression Model
 
-As an alternative look at a multi-variable linear model. To assist us we will
-use the AIC step-wise model selection from the [MASS 
+As an alternative look at a multi-variable linear model. To assist us we will 
+use the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion)
+step-wise model selection from the [MASS 
 package](https://cran.r-project.org/web/packages/MASS/index.html). AIC is a 
 goodness of fit measure that favours smaller residual error in the model, but 
 penalises the inclusion of further predictors which helps avoiding over fitting.
 When comparing models fitted by maximum likelihood to the same data, the smaller
 the AIC, the better the fit. The previous simple linear model had a maximum 
-likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,3))` 
+likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,3))`
 and an AIC of `r round(AIC(modelSLR),3)`.
 
-The best model found using the [AIC stepwise algorithm](#appendices) was:
+The best model [found](#appendices) using the AIC stepwise algorithm was:
 $mpg \sim wt + qsec + am$. The table below summarises its coefficients:
 
 ```{r modelMLR}
@@ -114,69 +119,59 @@ kable(modelMLRsum$coef, caption = "Model Coefficients")
 ```
 
 We can see that on average manual transmission cars have
-`r round(modelMLRsum$coef[4],3)` MPGs better mileage than cars with automatic
-transmission. So, how does this model compare to our [Simple Linear 
-Model](#simple-linear-model)? Below is a table summarising some of the key
-statistics we can use to compare these two models:
+`r round(modelMLRsum$coef[4],3)` MPG better mileage than cars with automatic 
+transmission. So, how does this model compare to our [Simple Linear Regression 
+Model](#simple-linear-regression-model)? Below is a table summarising some of
+the key statistics we can use to compare these two models:
 
 ```{r compare}
-fit.models <- c("Simple Linear Regression", "Multivariable Linear Regression")
+fit.models <- c("Simple Linear Regression", "Multi Linear Regression")
 fit.r.squared <- c(modelSLRsum$adj.r.squared, modelMLRsum$adj.r.squared)
+fit.vif <- 1/(1 - fit.r.squared)
 fit.var.residuals <- c(modelSLRsum$sigma, modelMLRsum$sigma)
 fit.aic <- c(AIC(modelSLR), AIC(modelMLR))
-df <- data.frame("Model" = fit.models, "R Squared" = fit.r.squared, "Residual Variance" = fit.var.residuals, AIC = fit.aic)
+df <- data.frame("Model" = fit.models, "R Squared" = fit.r.squared, VIF = fit.vif, "Residual Variance" = fit.var.residuals, AIC = fit.aic)
 kable(df, caption = "Compare Models")
 ```
 
-A number of things to note from these statistics. Firstly, over
-`r round(modelMLRsum$adj.r.squared * 100)`% of the variation ($R^2$) is now
-explained by the [Mutlivariable Linear Model](#simple-linear-model). Furthermore
+There are a number of things to note from these statistics. Firstly, over
+`r round(modelMLRsum$adj.r.squared * 100)`% of the variation ($R^2$) is now 
+explained by the [Multi Linear Regression 
+Model](#multi-linear-regression-model). This also relates to the [variance
+inflation factor 
+(VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor). Furthermore, 
 the measure of residual variation has reduced. We have also seen an reduction in
 AIC.
 
 In the [Appendices](#appendices) are two residual plots. The first shows
-residuals for our [Simple Linear Model](#simple-linear-model). The values are
-clustered around the sample means. This is an indication of poor model fit.
-Compare this to the residuals vs fitted values for the multi-variable regression
-model. The values are more evenly spread without any distinct cluster or
-pattern. This further indicates a better model fit than our [Simple Linear
-Model](#simple-linear-model).
+residuals for our [Simple Linear Regression
+Model](#simple-linear-regression-model). The values are clustered around the
+sample means. This is an indication of poor model fit. Compare this to the
+residuals vs fitted values for the multi-variable regression model. The values
+are more evenly spread without any distinct cluster or pattern. This further
+indicates a better model fit than the Simple linear Regression Model.
+
+Included in the Appendices is the plot [Multi Linear Regression: Normal 
+Q-Q](#appendices). This helps show the fit standardised residuals to the
+expected Gaussian distribution.
+
+# Conclusion
+
+The multi-variable linear regression model provides a more resilient predictor
+of mileage, although at a small cost of requiring additional regressors, namely
+the automobiles weight and the time for a quarter mile. Weight reduces mileage 
+`r round(modelMLRsum$coef[2],3)` per 1000 lb increase in weight. While taking
+longer to do a $^1/_4$ quarter mile improves mileage by
+`r round(modelMLRsum$coef[3],3)` per second increase in time.
 
 # References
 
+* Generated from Rmd into PDF using [knitr in RStudio](http://yihui.name/knitr/demo/rstudio/), see also [session information](#appendices).
 * [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
 * [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
 
 # Appendices
-
-```{r violinplot, fig.cap = "Milage by Transmission Type"}
-mtcars2 <- data.frame(mtcars)
-mtcars2$am <- factor(mtcars2$am, labels = c("automatic", "manual"))
-ggplot(mtcars2, aes(x = am, y = mpg)) +
-    geom_violin() +
-    geom_boxplot(width = 0.2, fill = "purple", alpha = 0.4) +
-    stat_summary(fun.y = mean, geom = "point", colour = "white", shape = 19, size = 2) +
-    labs(x = "Transmission Type", y = "Miles/(US) gallon")
-```
-
-```{r redismodelSLR, fig.cap = "Fitted vs Residuals for model 1"}
-qplot(fitted(modelSLR), resid(modelSLR)) +
-    geom_hline(yintercept = 0, colour = "red") +
-    geom_point(shape = 19, size = 2, colour = "purple") +
-    xlab("Fitted values") +
-    ylab("Residuals") +
-    ggtitle("Model 1 fitted values vs residuals")
-```
-
-```{r redismodelMLR, fig.cap = "Fitted vs Residuals for model 2"}
-qplot(fitted(modelMLR), resid(modelMLR)) +
-    geom_hline(yintercept = 0, colour = "red") +
-    geom_point(shape = 19, size = 2, colour = "purple") +
-    xlab("Fitted values") +
-    ylab("Residuals") +
-    ggtitle("Model 2 fitted values vs residuals")
-```
 
 ```{r stepwise, fig.cap = "AIC Stepwise Regression"}
 library(MASS)
@@ -187,4 +182,37 @@ step$anova
 
 ```{r sessionInformation, fig.cap = "Session Information"}
 sessionInfo()
+```
+
+```{r violinplot, fig.cap = "Milage by Transmission Type"}
+mtcars2 <- data.frame(mtcars)
+mtcars2$am <- factor(mtcars2$am, labels = c("automatic", "manual"))
+ggplot(mtcars2, aes(x = am, y = mpg)) +
+    geom_violin() +
+    geom_boxplot(width = 0.2, fill = "purple", alpha = 0.4) +
+    stat_summary(fun.y = mean, geom = "point", colour = "white", shape = 19, size = 2) +
+    labs(x = "Transmission Type", y = "Miles/(US) gallon") +
+    ggtitle("Milage by Transmission Type")
+```
+
+```{r risvsfitmodelSLR, fig.cap = "Fitted vs Residuals for modelSLR"}
+qplot(fitted(modelSLR), resid(modelSLR)) +
+    geom_hline(yintercept = 0, colour = "red") +
+    geom_point(shape = 19, size = 2, colour = "purple") +
+    xlab("Fitted values") +
+    ylab("Residuals") +
+    ggtitle("Simple Linear Regression fitted values vs residuals")
+```
+
+```{r risvsfitmodelMLR, fig.cap = "Fitted vs Residuals for modelMLR"}
+qplot(fitted(modelMLR), resid(modelMLR)) +
+    geom_hline(yintercept = 0, colour = "red") +
+    geom_point(shape = 19, size = 2, colour = "purple") +
+    xlab("Fitted values") +
+    ylab("Residuals") +
+    ggtitle("Multi Linear Regression: fitted values vs residuals")
+```
+
+```{r plotmodelMLR, fig.cap = "Multi Linear Regression: Normal Q-Q"}
+plot(modelMLR, which = c(2))
 ```
