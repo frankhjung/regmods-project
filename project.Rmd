@@ -169,8 +169,8 @@ the automobiles weight and the time for a quarter mile.
 
 # References
 
-* Generated from Rmd into PDF using [knitr in RStudio](http://yihui.name/knitr/demo/rstudio/), see also [session information](#appendices).
-* [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
+* Generated from Rmd into PDF using [knitr in RStudio](http://yihui.name/knitr/demo/rstudio/), see also [session information](#appendices)
+* [GitHub repository containing project code](https://github.com/frankhjung/regmods-project)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
 
 # Appendices
