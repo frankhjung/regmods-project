@@ -7,7 +7,6 @@ output:
     fig_caption: no
     fig_crop: no
     latex_engine: xelatex
-#    toc: yes
 classoption: legalpaper
 ---
 
