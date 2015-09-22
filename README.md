@@ -14,3 +14,4 @@ They are particularly interested in the following two questions:
 
 * [project.Rmd](project.Rmd) - source markdown report
 * [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](mtcars-henderson.pdf)
+* [notes.Rmd](notes.Rmd) - project reference notes 
