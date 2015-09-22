@@ -1,32 +1,33 @@
 ---
-title: 'Motor Trend: Which is better Manual or Automatic?'
-author: "Frank Jung"
-date: "21 September 2015"
+title: "Motor Trend: Which is better Manual or Automatic?"
+# author: "Frank Jung"
+# date: "21 September 2015"
 output:
   pdf_document:
-    fig_caption: yes
+    fig_caption: no
     fig_crop: no
     latex_engine: xelatex
-    toc: yes
+#    toc: yes
 classoption: legalpaper
 ---
 
 # Executive Summary
 
-This report seeks to answer the question: Which is better for car milage:
+This report seeks to answer the question: Which is better for car milage: 
 automatic or manual? Furthermore, can we quantify any milage differences between
 these two transmission types? To answer this question _Motor Trend_ has surveyed
-various performance metrics. In this report we will show that of the many automobile
-attributes surveyed by _Motor Trend_, the inclusion of just a few namely,
-Transmission Type, Weight and 1/4 mile time, provide a better prediction of
-milage than using just the transmission type.
+various performance metrics. In this report we will show that of the many 
+automobile attributes surveyed by _Motor Trend_, the inclusion of just a few 
+namely, Transmission Type, Weight and $\frac {1} {4}$ mile time, provide a 
+better prediction of milage than using just the transmission type.
 
 ```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
 require(ggplot2, quietly = TRUE)
 require(scales, quietly = TRUE)
-knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
-
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE, cache.path = "cache/", 
+                      fig.path = "figure/", fig.align = "center")
+# load cars dataset
 require(datasets, quietly = TRUE)
 data(mtcars)
 ```
@@ -44,73 +45,87 @@ A data frame with 32 observations on 11 variables.
 | drat  | Rear axle ratio           |
 | wt    | Weight (lb/1000)          |
 | qsec  | 1/4 mile time             |
-| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine),  [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) |
+| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine), [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) |
 | am    | Transmission (0 = automatic, 1 = manual) |
 | gear  | Number of forward gears (`r sort(unique(mtcars$gear))`) |
 | carb  | Number of carburetors (`r sort(unique(mtcars$carb))`) |
 
 The sample of the first rows from dataset looks like:
 
-```{r head, fig.cap="Exploratory Analysis - Sample"}
-kable(head(mtcars))
+```{r head}
+kable(head(mtcars), caption = "Sample from mtcars")
 ```
 
-How does milage compare to transmission? The boxplot below would indicate that manual transmissions have better milage. However, this could be due to other confounding factors. We will investigate this further in the next section. 
-
-```{r boxplot, fig.cap="Milage by Transmission Type"}
-boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
-with(mtcars, points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1)))
-axis(1, at = c(1, 2), labels = c("automatic", "manual"))
-title(main = "Milage by Transmission Type")
-```
+How does milage compare to transmission? The [Milage by Transmission
+Type](#appendices) plot would indicate that manual transmissions have better
+milage. However, this could be due to other confounding factors. We will
+investigate this further in the following sections.
 
 # Simple Linear Model
 
-Consider a simple linear model where we predict the milage (`mpg`) using just
+Consider a simple linear model where we predict the milage (`mpg`) using just 
 the categorical variable, transmission (`am`). This returns the coefficients
 
-```{r fit0coef}
-fit0 <- lm(mpg ~ am, mtcars)
-fit0sum <- summary(fit0)
-kable(fit0sum$coef)
+```{r model1}
+model1 <- lm(mpg ~ am, mtcars)
+model1sum <- summary(model1)
+kable(model1sum$coef, caption = "Model Coefficients")
 ```
 
-Reassuringly the P-value of the slope coefficient is `r fit0sum$coef[2,4]` 
-which indicates there is some amount of linear relationship between milage and
-transmission type. However, the predictions made by this model are just the
-milage sample mean for the respective transmission types:
+Reassuringly the P-value of the slope coefficient is
+`r prettyNum(round(model1sum$coef[2,4], 5))`, which indicates there is some 
+amount of linear relationship between milage and transmission type. However, the
+predictions made by this model are just the milage sample mean for the 
+respective transmission types:
 
 | Transmission | Prediction | Milage Sample Mean |
 |--------------|------------|--------------------|
-| Automatic | `r round(predict(fit0, data.frame(am = 0)), 3)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 3)` | 
-| Manual | `r round(predict(fit0, data.frame(am = 1)), 3)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 3)` | 
+| Automatic | `r round(predict(model1, data.frame(am = 0)), 3)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 3)` | 
+| Manual | `r round(predict(model1, data.frame(am = 1)), 3)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 3)` |
 
-Furthermore, only `r round(fit0sum$adj.r.squared * 100, 3)`% of the variation 
-($R^2$) is explained by this model. Can we do better?
+Furthermore, only `r round(model1sum$adj.r.squared * 100, 3)`% of the variation 
+($R^2$) is explained by this model. Can we do better? 
 
 # Multivariable Linear Model
 
-As a alternative look at a multi-variable model. 
+As a alternative look at a multi-variable model. To assist us we will use the
+AIC step-wise model selection from the MASS library. AIC is a goodness of fit
+measure that favours smaller residual error in the model, but penalises for
+including further predictors and helps avoiding overfitting. When comparing
+models fitted by maximum likelihood to the same data, the smaller the AIC, the
+better the fit. The previous simple linear model had a maxium likelihood
+(residula standard error) of `r prettyNum(round(model1sum$sigma, 3))` and an AIC
+of `r round(AIC(model1), 2)`.
+
+We will perform a stepwise regression using AIC.
 
 ```{r stepwise}
-# stepwise regression to determine best model given all observations
 library(MASS)
 fit <- lm(mpg ~ ., mtcars)
 step <- stepAIC(fit, direction = "both", trace = 0)
-# display results
-step$anova
+# step$anova
 ```
 
-Better Fit
+The best model found is: $mpg \sim wt + qsec + am$. The table below summarises
+its coefficients:
 
-```{r betterfit}
-# better model than mpg ~ am
-fit1 <- lm(mpg ~ am + wt + qsec, mtcars)
-fit1summary <- summary(fit)
-round(fit1summary$r.squared, 3)
-round(cor(mtcars[, c("mpg", "am", "wt", "qsec")]), 3)
-par(mfrow = c(2, 2))
-plot(fit)
+```{r model2}
+model2 <- lm(mpg ~ wt + qsec + am, mtcars)
+model2sum <- summary(model2)
+kable(model2sum$coef, caption = "Model Coefficients")
+```
+
+How does this model compare to our [Simple Linear Model](#simple-linear-model)?
+Below is a table to some of the key statistics we can use to compare these two
+models.
+
+```{r compare}
+fit.models <- c("model1", "model2")
+fit.r.squared <- c(model1sum$adj.r.squared, model2sum$adj.r.squared)
+fit.var.residuals <- c(model1sum$sigma, model2sum$sigma)
+fit.aic <- c(AIC(model1), AIC(model2))
+df <- data.frame("Model" = fit.models, "R-Squared" = fit.r.squared, "Residual Variance" = fit.var.residuals, AIC = fit.aic)
+kable(df)
 ```
 
 # References
@@ -118,12 +133,35 @@ plot(fit)
 * [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
 * [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
-* [Report session information](#session_information), Figure \ref{fig:si}
 
 # Appendices
 
-## Session Information
+```{r violinplot, echo = TRUE, fig.cap = "Milage by Transmission Type"}
+mtcars2 <- data.frame(mtcars)
+mtcars2$am <- factor(mtcars2$am, labels = c("automatic", "manual"))
+ggplot(mtcars2, aes(x = am, y = mpg)) +
+    geom_violin() +
+    geom_boxplot(width = 0.2, fill = "purple", alpha = 0.4) +
+    stat_summary(fun.y = mean, geom = "point", colour = "white", shape = 19, size = 2) +
+    labs(x = "Transmission Type", y = "Miles/(US) gallon")
+```
 
-```{r session}
-sessionInfo()
+```{r redismodel1, fig.cap = "Fitted vs Residuals for model 2", message = FALSE, warning = FALSE}
+#plot(fitted(model1), resid(model1))
+qplot(fitted(model1), resid(model1)) +
+    geom_hline(yintercept = 0, colour = "red") +
+    geom_point(shape = 19, size = 2, colour = "purple") +
+    xlab("Fitted values") +
+    ylab("Residuals") +
+    ggtitle("Model 1 fitted values vs residuals")
+```
+
+```{r redismodel2, fig.cap = "Fitted vs Residuals for model 2", message = FALSE, warning = FALSE}
+# plot(fitted(model2), resid(model2))
+qplot(fitted(model2), resid(model2)) +
+    geom_hline(yintercept = 0, colour = "red") +
+    geom_point(shape = 19, size = 2, colour = "purple") +
+    xlab("Fitted values") +
+    ylab("Residuals") +
+    ggtitle("Model 2 fitted values vs residuals")
 ```
