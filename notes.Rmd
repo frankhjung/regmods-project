@@ -52,6 +52,11 @@ Upload your PDF by clicking the Upload button below the text box.
 
 # Workflow
 
+## Executive Summary
+
+* what conclusions can be drawn?
+* is a/m a good predictor for performance of mpg?
+
 ## Explorartory Anaylsis
 
 * id variables as categorical, ordinal, quantitative
@@ -79,17 +84,15 @@ Good regressors have three main qualities:
 * confidence intervals for coefficients
 * confidence intervals for predictors
 
-## Executive Summary
-
-* what conclusions can be drawn?
-* is a/m a good predictor for performance of mpg?
-
 # References
 
 Choosing a model by Whattest Stats (YouTube)
 
 * [Exploratory Analysis(Multiple linear regression in R)](https://youtu.be/bfGhfalZR-Y)
+
 * [Building a model(Multiple linear regression in R)](https://youtu.be/itEyHjNjMIc)
+
+* [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 
 For assumptions and good overall approach see 
 
@@ -98,8 +101,6 @@ For assumptions and good overall approach see
 For more detailed treatment of all topics including variable selection see
 
 * [Practical regression and ANOVA](file:///home/frank/study/regmods-032/docs/practical-regression-and-anova-faraway.pdf)
-
-Model selection
 
 For tests to select best regressors:
 * [Multiple (Linear) Regression](http://www.statmethods.net/stats/regression.html)
@@ -112,27 +113,33 @@ For tests to select best regressors:
 # To Read
 
 * https://beckmw.wordpress.com/2013/02/05/collinearity-and-stepwise-vif-selection/
+* http://stats.stackexchange.com/questions/58141/interpreting-plot-lm
+* http://blog.minitab.com/blog/adventures-in-statistics/how-to-interpret-a-regression-model-with-low-r-squared-and-low-p-values
+* http://www.statmethods.net/stats/rdiagnostics.html
 
 # Code tests
 
 ```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
-require(printr, quietly = TRUE)
 require(ggplot2, quietly = TRUE)
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, cache.path = "cache/", fig.path = "figure/", fig.align = "center")
-```
+require(scales, quietly = TRUE)
 
-```{r load}
-# declare dataset
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, cache.path = "cache/", 
+                      fig.path = "figure/", fig.align = "center")
+
+# load cars dataset
 require(datasets, quietly = TRUE)
-data("mtcars")
+data(mtcars)
 ```
 
+## exploratory analysis
 
 ```{r summary}
 str(mtcars)
 kable(head(mtcars),align = 'c')
 ```
+
+## lm fit against all
 
 ```{r fitall}
 fit <- lm(mpg ~ ., mtcars)
@@ -141,9 +148,60 @@ par(mfrow = c(2, 2))
 plot(fit)
 ```
 
+## correlation
+
 ```{r correlation}
 round(cor(mtcars), 3)
 ```
+
+## fitted vs residual
+
+```{r fitbest}
+fit <- lm(mpg ~ wt + qsec + am, mtcars)
+summary(fit)
+round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
+qplot(fitted(fit), resid(fit))
+```
+
+## boxplot
+
+```{r boxplot}
+boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
+with(mtcars, points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1)))
+axis(1, at = c(1, 2), labels = c("automatic", "manual"))
+title(main = "Milage by Transmission Type")
+```
+
+## ggpairs
+
+```{r ggpairs}
+# require(GGally)
+# require(ggplot2)
+# ggpairs(mtcars, lower = list(continuous = "smooth"), params = c(method = "loess"))
+```
+
+## lm plots
+
+```{r statsfit1}
+round(cor(mtcars[, c("mpg", "am", "wt", "qsec")]), 3)
+fitsum <- summary(fit)
+par(mfrow = c(2, 2))
+plot(fit)
+round(fitsum$adj.r.squared, 3)
+```
+
+# What is AIC?
+
+AIC is a goodness of fit measure that favours smaller residual error in the 
+model, but penalises for including further predictors and helps avoiding 
+overfitting. When comparing models fitted by maximum likelihood to the same
+data, the smaller the AIC, the better the fit.
+
+```{r aic}
+AIC(fit)
+```
+
+## stepwise with AIC
 
 ```{r stepwise}
 # stepwise regression
@@ -154,37 +212,20 @@ step <- stepAIC(fit, direction = "both")
 step$anova 
 ```
 
-```{r fitbest}
-fit <- lm(mpg ~ wt + qsec + am, mtcars)
-summary(fit)
-round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
-par(mfrow = c(2, 2))
-plot(fit)
-```
+# Confidence Interval
 
-```{r mpgvsam}
-# what does mpg vs am look like?
-boxplot(mpg ~ am, mtcars, xaxt = "n", xlab = "Transmission Type", ylab = "Miles/(US) gallon")
-with(mtcars, points(am + 1, mpg, pch = 19, col = ((am == 0)*1 + 1)))
-axis(1, at = c(1, 2), labels = c("automatic", "manual"))
-title(main = "Milage by Transmission Type")
-```
+Now let’s do the slope:
 
-```{r ggpairs}
-# require(GGally)
-# require(ggplot2)
-# ggpairs(mtcars, lower = list(continuous = "smooth"), params = c(method = "loess"))
+```r
+> (sumCoef[2,1] + c(-1, 1) * qt(.975, df = fit$df) * sumCoef[2, 2]) / 10
+[1] 355.6 388.6
 ```
-
-```{r testmeans}
-test <- t.test(mpg ~ am, data= mtcars)
-test
-```
-
+## null hypothesis and t-test
 
 ```{r ttestmeans, echo=FALSE}
 h0 <- t.test(mpg ~ am, data = mtcars)
 ```
+
 First lets test if there is a significant difference in mean milage between 
 automatic and manual transmission types. Using a Welch two sample t-test for a 
 null hypothesis ($H_0$) that the mean milage is the same for automatic and
