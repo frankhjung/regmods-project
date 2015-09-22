@@ -62,13 +62,14 @@ kable(head(mtcars), caption = "Sample from mtcars")
 
 How does mileage compare to transmission? The [Mileage by Transmission 
 Type](#appendices) plot would indicate that manual transmissions have better 
-mileage. However, this could be due to other confounding factors. We will 
-investigate this further in the following sections.
+mileage. However, there could be regressors that give better predictions. We
+will investigate this further in the following sections.
 
 # Simple Linear Regression Model
 
 Consider a simple linear model where we predict the mileage (`mpg`) using just 
-the categorical variable, transmission (`am`). This returns the coefficients:
+the categorical variable, transmission (`am`), i.e. $mpg \sim am$. This returns
+the coefficients:
 
 ```{r modelSLR}
 modelSLR <- lm(mpg ~ am, mtcars)
@@ -79,8 +80,8 @@ kable(modelSLRsum$coef, caption = "Model Coefficients")
 Reassuringly the P-value of the slope coefficient is around
 `r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some 
 amount of linear relationship between mileage and transmission. However, the 
-[predictions](#appendices) made by this model are just the mileage sample mean
-for their respective transmission type:
+[predictions](#appendices) made by this model are just the mileage sample means
+for their respective transmission type as listed in the table below:
 
 | Transmission | Prediction | Mileage Sample Mean |
 |--------------|------------|--------------------|
@@ -122,7 +123,11 @@ kable(modelMLRsum$coef, caption = "Model Coefficients")
 
 We can see that on average manual transmission cars have
 `r round(modelMLRsum$coef[4],3)` MPG better mileage than cars with automatic 
-transmission. So, how does this model compare to our [Simple Linear Regression 
+transmission.  Weight reduces mileage `r round(modelMLRsum$coef[2],3)` per 1000
+lb increase in weight. While taking longer to do a $^1/_4$ quarter mile improves
+mileage by `r round(modelMLRsum$coef[3],3)` per second increase in time.
+
+So, how does this model compare to our [Simple Linear Regression 
 Model](#simple-linear-regression-model)? Below is a table summarising some of
 the key statistics we can use to compare these two models:
 
@@ -145,12 +150,12 @@ inflation factor
 the measure of residual variation has reduced. We have also seen an reduction in
 AIC.
 
-In the [Appendices](#appendices) are two residual plots. The first shows
-residuals for our [Simple Linear Regression
-Model](#simple-linear-regression-model). The values are clustered around the
-sample means. This is an indication of poor model fit. Compare this to the
-residuals vs fitted values for the multi-variable regression model. The values
-are more evenly spread without any distinct cluster or pattern. This further
+In the [Appendices](#appendices) are residual plots for both models. The first
+shows residuals for our [Simple Linear Regression 
+Model](#simple-linear-regression-model). The values are clustered around the 
+sample means. This is an indication of poor model fit. Compare this to the 
+residuals vs fitted values for the multi-variable regression model. The values 
+are more evenly spread without any distinct cluster or pattern. This further 
 indicates a better model fit than the Simple linear Regression Model.
 
 Included in the Appendices is the plot [Multi Linear Regression: Normal 
@@ -161,16 +166,12 @@ expected Gaussian distribution.
 
 The multi-variable linear regression model provides a more resilient predictor
 of mileage, although at a small cost of requiring additional regressors, namely
-the automobiles weight and the time for a quarter mile. Weight reduces mileage 
-`r round(modelMLRsum$coef[2],3)` per 1000 lb increase in weight. While taking
-longer to do a $^1/_4$ quarter mile improves mileage by
-`r round(modelMLRsum$coef[3],3)` per second increase in time.
+the automobiles weight and the time for a quarter mile.
 
 # References
 
 * Generated from Rmd into PDF using [knitr in RStudio](http://yihui.name/knitr/demo/rstudio/), see also [session information](#appendices).
 * [GitHub repository containing project code](https://github.com/frankjung/regmods-project1)
-* [Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.](https://github.com/frankhjung/regmods-project/blob/master/mtcars-henderson.pdf)
 * [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
 
 # Appendices
@@ -201,7 +202,7 @@ ggplot(mtcars2, aes(x = am, y = mpg)) +
 qplot(fitted(modelSLR), resid(modelSLR)) +
     geom_hline(yintercept = 0, colour = "red") +
     geom_point(shape = 19, size = 2, colour = "purple") +
-    xlab("Fitted values") +
+    xlab("Fitted values (MPG)") +
     ylab("Residuals") +
     ggtitle("Simple Linear Regression fitted values vs residuals")
 ```
@@ -210,7 +211,7 @@ qplot(fitted(modelSLR), resid(modelSLR)) +
 qplot(fitted(modelMLR), resid(modelMLR)) +
     geom_hline(yintercept = 0, colour = "red") +
     geom_point(shape = 19, size = 2, colour = "purple") +
-    xlab("Fitted values") +
+    xlab("Fitted values (MPG)") +
     ylab("Residuals") +
     ggtitle("Multi Linear Regression: fitted values vs residuals")
 ```
