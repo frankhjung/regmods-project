@@ -156,16 +156,16 @@ shows values that are more evenly spread, without any distinct cluster or
 pattern. This further indicates a better model fit than the Simple linear
 Regression Model.
 
-Included in the Appendices is the plot [Figure: Multi Linear Regression: Normal
+Included in the Appendices is the [Figure: Multi Linear Regression: Normal
 Q-Q](#appendices). This shows the models standardised residuals fit to the
 expected Gaussian distribution.
 
 # Conclusion
 
-The dataset is small with only `r nrow(mtcars)` records. The models could be
-improved with more data. That said, a multi-variable linear regression model
-provides a better predictor of mileage than the simple linear regression model.
-This is however comes at a small cost of requiring additional regressors, namely
+The dataset is small with only `r nrow(mtcars)` records. The models could be 
+improved with more data. That said, a multi-variable linear regression model 
+provides a better predictor of mileage than the simple linear regression model. 
+This, however, comes at a small cost of requiring additional regressors, namely 
 the automobiles weight and the time for a quarter mile.
 
 # References
