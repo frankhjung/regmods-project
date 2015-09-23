@@ -66,9 +66,10 @@ will investigate this further in the following sections.
 
 # Simple Linear Regression Model
 
-Consider a simple linear regression where we predict the mileage (`mpg`) using
-just the categorical variable, transmission (`am`), i.e. $mpg \sim am$. This
-returns the coefficients: ([Figure: Simple Linear Regression](#appendices))
+Consider a simple linear regression where we predict the mileage (`mpg`) using 
+just the categorical variable, transmission (`am`), i.e. $mpg \sim am$. See 
+[Figure: Simple Linear Regression](#appendices). The coefficients of this simple
+linear regression is:
 
 ```{r modelSLR}
 modelSLR <- lm(mpg ~ am, mtcars)
