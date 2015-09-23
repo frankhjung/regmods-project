@@ -12,13 +12,13 @@ classoption: legalpaper
 
 # Executive Summary
 
-This report seeks to answer the question: Which is better for car mileage:
-automatic or manual transmission? Also, can we quantify any mileage differences
-between these two transmission types? To answer this question _Motor Trend_ has
-surveyed various motor vehicles. In this report we will show that of the many
-auto-mobile attributes surveyed, a linear regression model with transmission
-type, weight and $^1/_4$ mile time, provide a better prediction for mileage than
-using only the transmission type.
+This report seeks to answer the question: Which is better for car mileage: 
+automatic or manual transmission? Also, can we quantify any mileage differences 
+between these two transmission types? To answer this question _Motor Trend_ has 
+surveyed various motor vehicles. In this report we will show that of the many 
+auto-mobile attributes surveyed, a linear regression model with transmission 
+type, weight and $\frac {1} {4}$ mile time, provide a better prediction for
+mileage than using only the transmission type.
 
 ```{r setoptions, echo=FALSE}
 require(knitr, quietly = TRUE)
