@@ -59,8 +59,8 @@ The sample of the first rows from dataset looks like:
 kable(head(mtcars), caption = "Sample from mtcars")
 ```
 
-How does mileage compare to transmission? The [Mileage by Transmission 
-Type](#appendices) plot would indicate that manual transmissions have better 
+How does mileage compare to transmission? The [Figure: Mileage by Transmission 
+Type](#appendices) indicates that manual transmissions have better 
 mileage. However, there could be regressors that give better predictions. We
 will investigate this further in the following sections.
 
@@ -89,8 +89,10 @@ for their respective transmission type as listed in the table below:
 
 Table: Model prediction vs mileage sample mean
 
-This is further demonstrated by the [plots of residual vs fitted
-values](#appendices).
+This is further demonstrated by the plots of residual vs fitted values, see
+[Figure: Fitted vs Residuals for Simple Linear Regresssion](#appendices). It
+shows the values are clustered around the sample means. This is an indication of
+poor model fit.
 
 Finally, only about `r round(modelSLRsum$adj.r.squared * 100)`% of the
 variation ($R^2$) is explained by this model. Can we do better?
@@ -149,33 +151,31 @@ inflation factor
 the measure of residual variation has reduced. We have also seen an reduction in
 AIC.
 
-In the [Appendices](#appendices) are residual plots for both models. The first
-shows residuals for our [Simple Linear Regression 
-Model](#simple-linear-regression-model). The values are clustered around the 
-sample means. This is an indication of poor model fit. Compare this to the 
-residuals vs fitted values for the multi-variable regression model. The values 
-are more evenly spread without any distinct cluster or pattern. This further 
-indicates a better model fit than the Simple linear Regression Model.
+The [Figure: Fitted vs Residuals for Multi Linear Regresssion](#appendices) 
+shows values that are more evenly spread, without any distinct cluster or
+pattern. This further indicates a better model fit than the Simple linear
+Regression Model.
 
-Included in the Appendices is the plot [Multi Linear Regression: Normal 
-Q-Q](#appendices). This helps show the fit standardised residuals to the
+Included in the Appendices is the plot [Figure: Multi Linear Regression: Normal 
+Q-Q](#appendices). This shows the models standardised residuals fit to the 
 expected Gaussian distribution.
 
 # Conclusion
 
-The multi-variable linear regression model provides a more resilient predictor
-of mileage, although at a small cost of requiring additional regressors, namely
+The dataset is small with only `r nrow(mtcars)` records. The models could be 
+improved with more data. That said, a multi-variable linear regression model 
+provides a better predictor of mileage than the simple linear regression model.
+This is however comes at a small cost of requiring additional regressors, namely
 the automobiles weight and the time for a quarter mile.
 
 # References
 
 * Generated from Rmd into PDF using [knitr in RStudio](http://yihui.name/knitr/demo/rstudio/), see also [session information](#appendices)
 * [GitHub repository containing project code](https://github.com/frankhjung/regmods-project)
-* [MT Cars Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
 
 # Appendices
 
-```{r stepwise, fig.cap = "AIC Stepwise Regression"}
+```{r stepwise, fig.cap = "AIC Stepwise Regression", echo = TRUE}
 library(MASS)
 fit <- lm(mpg ~ ., mtcars)
 step <- stepAIC(fit, direction = "both", trace = 0)
@@ -193,28 +193,31 @@ ggplot(mtcars2, aes(x = am, y = mpg)) +
     geom_violin() +
     geom_boxplot(width = 0.2, fill = "purple", alpha = 0.4) +
     stat_summary(fun.y = mean, geom = "point", colour = "white", shape = 19, size = 2) +
+    theme_light(base_family = "sans", base_size = 11) +
     labs(x = "Transmission Type", y = "Miles/(US) gallon") +
     ggtitle("Milage by Transmission Type")
 ```
 
-```{r risvsfitmodelSLR, fig.cap = "Fitted vs Residuals for modelSLR"}
+```{r risvsfitmodelSLR, fig.cap = "Fitted vs Residuals for Simple Linear Regresssion"}
 qplot(fitted(modelSLR), resid(modelSLR)) +
     geom_hline(yintercept = 0, colour = "red") +
     geom_point(shape = 19, size = 2, colour = "purple") +
+    theme_light(base_family = "sans", base_size = 11) +
     xlab("Fitted values (MPG)") +
     ylab("Residuals") +
     ggtitle("Simple Linear Regression fitted values vs residuals")
 ```
 
-```{r risvsfitmodelMLR, fig.cap = "Fitted vs Residuals for modelMLR"}
+```{r risvsfitmodelMLR, fig.cap = "Fitted vs Residuals for Multi Linear Regresssion"}
 qplot(fitted(modelMLR), resid(modelMLR)) +
     geom_hline(yintercept = 0, colour = "red") +
     geom_point(shape = 19, size = 2, colour = "purple") +
+    theme_light(base_family = "sans", base_size = 11) +
     xlab("Fitted values (MPG)") +
     ylab("Residuals") +
     ggtitle("Multi Linear Regression: fitted values vs residuals")
 ```
 
 ```{r plotmodelMLR, fig.cap = "Multi Linear Regression: Normal Q-Q"}
-plot(modelMLR, which = c(2))
+plot(modelMLR, which = c(2), pch = 19, col = c("purple"))
 ```
