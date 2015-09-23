@@ -230,3 +230,48 @@ First lets test if there is a significant difference in mean milage between
 automatic and manual transmission types. Using a Welch two sample t-test for a 
 null hypothesis ($H_0$) that the mean milage is the same for automatic and
 manual, returns a significant p-value of about `r round(h0$p.value, 4)`.
+
+# Compare Models
+
+## simple vs multi linear regression
+
+```{r}
+require(knitr, quietly = TRUE)
+require(datasets, quietly = TRUE)
+data(mtcars)
+
+modelSLR <- lm(mpg ~ am, mtcars)
+modelSLRsum <- summary(modelSLR)
+
+modelMLR <- lm(mpg ~ wt + qsec + am, mtcars)
+modelMLRsum <- summary(modelMLR)
+
+fit.models <- c("Simple Linear Regression", "Multi Linear Regression")
+fit.r.squared <- c(modelSLRsum$adj.r.squared, modelMLRsum$adj.r.squared)
+fit.vif <- 1/(1 - fit.r.squared)
+fit.var.residuals <- c(modelSLRsum$sigma, modelMLRsum$sigma)
+fit.aic <- c(AIC(modelSLR), AIC(modelMLR))
+fit.mean.residuals <- c(mean(modelSLR$residuals), mean(modelMLR$residuals))
+
+# fit.cov <- c(cov(modelSLR$residuals, mtcars$mpg), cov(modelMLR$residuals, mtcars$mpg))
+
+df <- data.frame("Model" = fit.models,
+                 "R Squared" = fit.r.squared,
+                 VIF = fit.vif,
+                 "Residual Variance" = fit.var.residuals,
+                 AIC = fit.aic)
+kable(df, caption = "Compare Models")
+
+kable(anova(modelSLR, modelMLR), caption = "ANOVA")
+```
+
+P-value for 2nd model is significant further supporting the multi linear
+regression model.
+
+```{r}
+mean(modelSLR$residuals)
+mean(modelMLR$residuals)
+
+modelSLRsum$cov.unscaled
+modelMLRsum$cov.unscaled
+```
