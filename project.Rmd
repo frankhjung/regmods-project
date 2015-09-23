@@ -122,10 +122,10 @@ kable(modelMLRsum$coef, caption = "Model Coefficients")
 ```
 
 We can see that on average manual transmission cars have
-`r round(modelMLRsum$coef[4],3)` MPG better mileage than cars with automatic
-transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],3)` per
-1000 lb increase in weight. While taking longer to do a $^1/_4$ quarter mile
-improves mileage by `r round(modelMLRsum$coef[3],3)` per second increase in
+`r round(modelMLRsum$coef[4],3)` MPG better mileage than cars with automatic 
+transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],3)` per 
+1000 lb increase in weight. While taking longer to do a $\frac {1} {4}$ quarter
+mile improves mileage by `r round(modelMLRsum$coef[3],3)` per second increase in
 time.
 
 So, how does this model compare to our [Simple Linear Regression
@@ -151,14 +151,15 @@ inflation factor
 the measure of residual variation has reduced. We have also seen an reduction in
 AIC.
 
-The [Figure: Fitted vs Residuals for Multi Linear Regression](#appendices)
-shows values that are more evenly spread, without any distinct cluster or
-pattern. This further indicates a better model fit than the Simple linear
-Regression Model.
+The [Figure: Fitted vs Residuals for Multi Linear Regression](#appendices) shows
+values that are more evenly spread (homoscedasticity), without any distinct
+cluster or pattern. This further indicates a better model fit than the Simple
+linear Regression Model.
 
-Included in the Appendices is the [Figure: Multi Linear Regression: Normal
-Q-Q](#appendices). This shows the models standardised residuals fit to the
-expected Gaussian distribution.
+Included in the Appendices is the [Figure: Multi Linear Regression: Normal 
+Q-Q](#appendices). This shows the models standardised residuals fit to the 
+expected [Gaussian
+distribution](https://en.wikipedia.org/wiki/Normal_distribution).
 
 # Conclusion
 
