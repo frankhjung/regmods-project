@@ -39,15 +39,15 @@ The motor vehicle dataset consists of 32 observations on 11 variables:
 
 | Field | Description | Range |
 |-------|-------------|-------|
-| mpg   | Miles/(US) gallon | (`r min(mtcars$mpg)`, `r max(mtcars$mpg)` |
+| mpg   | Miles/(US) gallon | (`r min(mtcars$mpg)`, `r max(mtcars$mpg)`) |
 | cyl   | Number of cylinders | (`r sort(unique(mtcars$cyl))`) |
-| disp  | Displacement (cu.in.) | (`r min(mtcars$disp)`, `r max(mtcars$disp)` |
-| hp    | Gross horsepower | (`r min(mtcars$hp)`, `r max(mtcars$hp)` |
-| drat  | Rear axle ratio | (`r min(mtcars$drat)`, `r max(mtcars$drat)` |
-| wt    | Weight (lb/1000) | (`r min(mtcars$wt)`, `r max(mtcars$wt)` |
-| qsec  | 1/4 mile time (seconds) | (`r min(mtcars$qsec)`, `r max(mtcars$qsec)` |
-| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine), [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) | (0 = v-shaped, 1 = straight) |
-| am    | Transmission | (0 = automatic, 1 = manual) |
+| disp  | Displacement (cu.in.) | (`r min(mtcars$disp)`, `r max(mtcars$disp)`) |
+| hp    | Gross horsepower | (`r min(mtcars$hp)`, `r max(mtcars$hp)`) |
+| drat  | Rear axle ratio | (`r min(mtcars$drat)`, `r max(mtcars$drat)`) |
+| wt    | Weight (lb/1000) | (`r min(mtcars$wt)`, `r max(mtcars$wt)`) |
+| qsec  | 1/4 mile time (seconds) | (`r min(mtcars$qsec)`, `r max(mtcars$qsec)`) |
+| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine) / [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) | (0 = V-shaped, 1 = Straight) |
+| am    | Transmission | (0 = Automatic, 1 = Manual) |
 | gear  | Number of forward gears | (`r sort(unique(mtcars$gear))`) |
 | carb  | Number of carburettors | (`r sort(unique(mtcars$carb))`) |
 
