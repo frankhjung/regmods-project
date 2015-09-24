@@ -68,13 +68,14 @@ will investigate this further in the following sections.
 
 Consider a simple linear regression where we predict the mileage (`mpg`) using 
 just the categorical variable, transmission (`am`), i.e. $mpg \sim am$. See 
-[Figure: Simple Linear Regression](#appendices). The coefficients of this simple
-linear regression is:
+[Figure: Simple Linear Regression](#appendices). However, as transmission is 
+categorical this is not a good representation.. The coefficients of this simple 
+linear regression are:
 
 ```{r modelSLR}
 modelSLR <- lm(mpg ~ am, mtcars)
 modelSLRsum <- summary(modelSLR)
-kable(modelSLRsum$coef, caption = "Model Coefficients")
+kable(cbind(modelSLRsum$coef, round(confint(modelSLR), 1)), caption = "Model Coefficients")
 ```
 
 Reassuringly the P-value of the slope coefficient is around
@@ -99,14 +100,14 @@ variation ($R^2$) is explained by this model. Can we do better?
 
 # Multi Linear Regression Model
 
-As an alternative look at a multi-variable linear model. To assist us we will
-use the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion)
-step-wise model selection from the [MASS
-package](https://cran.r-project.org/web/packages/MASS/index.html). AIC is a
-goodness of fit measure that favours smaller residual error in the model, but
+As an alternative look at a multi-variable linear regression. To assist us we
+will use the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) 
+step-wise model selection from the [MASS 
+package](https://cran.r-project.org/web/packages/MASS/index.html). AIC is a 
+goodness of fit measure that favours smaller residual error in the model, but 
 penalises the inclusion of further predictors which helps avoiding over fitting.
 When comparing models fitted by maximum likelihood to the same data, the smaller
-the AIC, the better the fit. The previous simple linear model had a maximum
+the AIC, the better the fit. The previous simple linear model had a maximum 
 likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,3))`
 and an AIC of `r round(AIC(modelSLR),3)`.
 
@@ -119,7 +120,7 @@ fit <- lm(mpg ~ ., mtcars)
 step <- stepAIC(fit, direction = "both", trace = 0)
 modelMLR <- lm(mpg ~ wt + qsec + am, mtcars)
 modelMLRsum <- summary(modelMLR)
-kable(modelMLRsum$coef, caption = "Model Coefficients")
+kable(cbind(modelMLRsum$coef, round(confint(modelMLR), 1)), caption = "Model Coefficients")
 ```
 
 We can see that on average manual transmission cars have

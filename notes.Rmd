@@ -235,6 +235,13 @@ manual, returns a significant p-value of about `r round(h0$p.value, 4)`.
 
 ## simple vs multi linear regression
 
+```r
+apply(modelSLRsum$coef[, 1] + c(-1, 1) * qt(.975, df = modelSLR$df) * modelSLRsum$coef[, 2], 1, function(x) sprintf("(%.1f, %.1f)", x[1], x[2]))
+
+ci <- round(modelSLRsum$coef[1, 1] + c(-1, 1) * qt(.975, df = modelSLR$df) * modelSLRsum$coef[1, 2], 1)
+sprintf("(%.1f, %.1f)", ci[1], ci[2])
+```
+
 ```{r}
 require(knitr, quietly = TRUE)
 require(datasets, quietly = TRUE)
@@ -242,6 +249,12 @@ data(mtcars)
 
 modelSLR <- lm(mpg ~ am, mtcars)
 modelSLRsum <- summary(modelSLR)
+
+df <- modelSLRsum$coef
+df <- cbind(df, round(confint(modelSLR), 1))
+kable(df, caption = "Model Coefficients")
+
+
 
 modelMLR <- lm(mpg ~ wt + qsec + am, mtcars)
 modelMLRsum <- summary(modelMLR)
