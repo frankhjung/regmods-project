@@ -12,11 +12,11 @@ classoption: legalpaper
 
 # Executive Summary
 
-This report seeks to answer the question: Which is better for car mileage: 
-automatic or manual transmission? Also, can we quantify any mileage differences 
-between these two transmission types? To answer this question _Motor Trend_ has 
-surveyed various motor vehicles. In this report we will show that of the many 
-automobile attributes surveyed, a linear regression model with transmission 
+This report seeks to answer the question: Which is better for car mileage:
+automatic or manual transmission? Also, can we quantify any mileage differences
+between these two transmission types? To answer this question _Motor Trend_ has
+surveyed various motor vehicles. In this report we will show that of the many
+automobile attributes surveyed, a linear regression model with transmission
 type, weight and $\frac {1} {4}$ mile time, provide a better prediction for
 mileage than using only the transmission type.
 
@@ -77,8 +77,8 @@ kable(cbind(modelSLRsum$coef, round(confint(modelSLR), 1)), caption = "Model Coe
 ```
 
 Reassuringly the P-value of the slope coefficient is around
-`r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some 
-amount of linear relationship between mileage and transmission. However, since 
+`r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some
+amount of linear relationship between mileage and transmission. However, since
 the transmission is categorical the predictions made by this model are just
 mileage sample means for their respective transmission types as is shown in the
 table below:
@@ -90,8 +90,8 @@ table below:
 
 Table: Model prediction vs mileage sample mean
 
-In [Figure: Fitted vs Residuals for Simple Linear Regression](#appendices) the 
-plot shows increased variance (heteroscedasticity) about the mean for manual 
+In [Figure: Fitted vs Residuals for Simple Linear Regression](#appendices) the
+plot shows increased variance (heteroscedasticity) about the mean for manual
 versus automatic.
 
 Finally, only about `r round(modelSLRsum$adj.r.squared * 100)`% of the
@@ -100,13 +100,13 @@ variation ($R^2$) is explained by this model. Can we do better?
 # Multi Linear Regression Model
 
 As an alternative look at a multi-variable linear regression. To assist us we
-will use the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) 
-step-wise model selection from the [MASS 
-package](https://cran.r-project.org/web/packages/MASS/index.html). AIC is a 
-goodness of fit measure that favours smaller residual error in the model, but 
+will use the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion)
+step-wise model selection from the [MASS
+package](https://cran.r-project.org/web/packages/MASS/index.html). AIC is a
+goodness of fit measure that favours smaller residual error in the model, but
 penalises the inclusion of further predictors which helps avoiding over fitting.
 When comparing models fitted by maximum likelihood to the same data, the smaller
-the AIC, the better the fit. The previous simple linear model had a maximum 
+the AIC, the better the fit. The previous simple linear model had a maximum
 likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,2))`
 and an AIC of `r round(AIC(modelSLR),2)`.
 
@@ -123,8 +123,8 @@ kable(cbind(modelMLRsum$coef, round(confint(modelMLR), 1)), caption = "Model Coe
 ```
 
 We can see that on average manual transmission cars have
-`r round(modelMLRsum$coef[4],2)` MPG better mileage than cars with automatic 
-transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],2)` per 
+`r round(modelMLRsum$coef[4],2)` MPG better mileage than cars with automatic
+transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],2)` per
 1000 lb increase in weight. While taking longer to do a $\frac {1} {4}$ quarter
 mile improves mileage by `r round(modelMLRsum$coef[3],2)` per second increase in
 time.
@@ -157,17 +157,17 @@ values that are more evenly spread (homoscedasticity), without any distinct
 cluster or pattern. This further indicates a better model fit than the Simple
 linear Regression Model.
 
-Included in the Appendices is the [Figure: Multi Linear Regression: Normal 
-Q-Q](#appendices). This shows the models standardised residuals fit to the 
+Included in the Appendices is the [Figure: Multi Linear Regression: Normal
+Q-Q](#appendices). This shows the models standardised residuals fit to the
 expected [Gaussian
 distribution](https://en.wikipedia.org/wiki/Normal_distribution).
 
 # Conclusion
 
-The dataset is small with only `r nrow(mtcars)` records. The models could be 
-improved with more data. That said, a multi-variable linear regression model 
-provides a better predictor of mileage than the simple linear regression model. 
-This, however, comes at a small cost of requiring additional regressors, namely 
+The dataset is small with only `r nrow(mtcars)` records. The models could be
+improved with more data. That said, a multi-variable linear regression model
+provides a better predictor of mileage than the simple linear regression model.
+This, however, comes at a small cost of requiring additional regressors, namely
 the automobiles weight and the time for a quarter mile.
 
 # References
