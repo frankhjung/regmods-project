@@ -16,7 +16,7 @@ This report seeks to answer the question: Which is better for car mileage:
 automatic or manual transmission? Also, can we quantify any mileage differences 
 between these two transmission types? To answer this question _Motor Trend_ has 
 surveyed various motor vehicles. In this report we will show that of the many 
-auto-mobile attributes surveyed, a linear regression model with transmission 
+automobile attributes surveyed, a linear regression model with transmission 
 type, weight and $\frac {1} {4}$ mile time, provide a better prediction for
 mileage than using only the transmission type.
 
@@ -66,11 +66,9 @@ will investigate this further in the following sections.
 
 # Simple Linear Regression Model
 
-Consider a simple linear regression where we predict the mileage (`mpg`) using 
-just the categorical variable, transmission (`am`), i.e. $mpg \sim am$. See 
-[Figure: Simple Linear Regression](#appendices). However, as transmission is 
-categorical this is not a good representation.. The coefficients of this simple 
-linear regression are:
+Consider a simple linear regression where we predict the mileage (`mpg`) using
+just the transmission (`am`), i.e. $mpg \sim am$. See [Figure: Simple Linear
+Regression](#appendices). The coefficients of this simple linear regression are:
 
 ```{r modelSLR}
 modelSLR <- lm(mpg ~ am, mtcars)
@@ -79,21 +77,22 @@ kable(cbind(modelSLRsum$coef, round(confint(modelSLR), 1)), caption = "Model Coe
 ```
 
 Reassuringly the P-value of the slope coefficient is around
-`r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some
-amount of linear relationship between mileage and transmission. However, the
-predictions made by this model are just the mileage sample means for their
-respective transmission type as listed in the table below:
+`r prettyNum(round(modelSLRsum$coef[2,4], 5))`, which indicates there is some 
+amount of linear relationship between mileage and transmission. However, since 
+the transmission is categorical the predictions made by this model are just
+mileage sample means for their respective transmission types as is shown in the
+table below:
 
 | Transmission | Prediction | Mileage Sample Mean |
 |--------------|------------|--------------------|
-| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 3)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 3)` |
-| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 3)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 3)` |
+| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` |
+| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` |
 
 Table: Model prediction vs mileage sample mean
 
-This is further demonstrated by [Figure: Fitted vs Residuals for Simple Linear
-Regression](#appendices). This plot shows the values are clustered around the
-sample means. This is an indication of poor model fit.
+In [Figure: Fitted vs Residuals for Simple Linear Regression](#appendices) the 
+plot shows increased variance (heteroscedasticity) about the mean for manual 
+versus automatic.
 
 Finally, only about `r round(modelSLRsum$adj.r.squared * 100)`% of the
 variation ($R^2$) is explained by this model. Can we do better?
@@ -108,8 +107,8 @@ goodness of fit measure that favours smaller residual error in the model, but
 penalises the inclusion of further predictors which helps avoiding over fitting.
 When comparing models fitted by maximum likelihood to the same data, the smaller
 the AIC, the better the fit. The previous simple linear model had a maximum 
-likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,3))`
-and an AIC of `r round(AIC(modelSLR),3)`.
+likelihood (residual standard error) of `r prettyNum(round(modelSLRsum$sigma,2))`
+and an AIC of `r round(AIC(modelSLR),2)`.
 
 The best model [found](#appendices) using the AIC stepwise algorithm was:
 $mpg \sim wt + qsec + am$. The table below summarises its coefficients:
@@ -124,10 +123,10 @@ kable(cbind(modelMLRsum$coef, round(confint(modelMLR), 1)), caption = "Model Coe
 ```
 
 We can see that on average manual transmission cars have
-`r round(modelMLRsum$coef[4],3)` MPG better mileage than cars with automatic 
-transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],3)` per 
+`r round(modelMLRsum$coef[4],2)` MPG better mileage than cars with automatic 
+transmission.  Weight reduces mileage by `r round(modelMLRsum$coef[2],2)` per 
 1000 lb increase in weight. While taking longer to do a $\frac {1} {4}$ quarter
-mile improves mileage by `r round(modelMLRsum$coef[3],3)` per second increase in
+mile improves mileage by `r round(modelMLRsum$coef[3],2)` per second increase in
 time.
 
 So, how does this model compare to our [Simple Linear Regression
@@ -206,6 +205,7 @@ ggplot(mtcars, aes(x = am, y = mpg)) +
     geom_point(shape = 19, size = 2, colour = "purple") +
     geom_smooth(method = lm) +
     theme_light(base_family = "sans", base_size = 11) +
+    scale_x_discrete(breaks = c(0, 1), labels = c("automatic", "manual"), expand = c(0.2, -0.5)) +
     labs(x = "Transmission Type", y = "Miles/(US) gallon") +
     ggtitle("Simple Linear Regression: mpg ~ transmission")
 ```
