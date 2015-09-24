@@ -16,7 +16,7 @@ This report seeks to answer the question: Which is better for car mileage:
 automatic or manual transmission? Also, can we quantify any mileage differences
 between these two transmission types? To answer this question _Motor Trend_ has
 surveyed various motor vehicles. In this report we will show that of the many
-automobile attributes surveyed, a linear regression model with transmission
+automobile attributes measured, a linear regression model with transmission
 type, weight and $\frac {1} {4}$ mile time, provide a better prediction for
 mileage than using only the transmission type.
 
@@ -35,21 +35,21 @@ data(mtcars)
 
 # Exploratory Analysis
 
-A data frame with 32 observations on 11 variables.
+The motor vehicle dataset consists of 32 observations on 11 variables:
 
-| Field | Description |
-|-------|-------------|
-| mpg   | Miles/(US) gallon |
-| cyl   | Number of cylinders (`r sort(unique(mtcars$cyl))`) |
-| disp  | Displacement (cu.in.) |
-| hp    | Gross horsepower |
-| drat  | Rear axle ratio |
-| wt    | Weight (lb/1000) |
-| qsec  | 1/4 mile time (seconds) |
-| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine), [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) |
-| am    | Transmission (0 = automatic, 1 = manual) |
-| gear  | Number of forward gears (`r sort(unique(mtcars$gear))`) |
-| carb  | Number of carburettors (`r sort(unique(mtcars$carb))`) |
+| Field | Description | Range |
+|-------|-------------|-------|
+| mpg   | Miles/(US) gallon | (`r min(mtcars$mpg)`, `r max(mtcars$mpg)` |
+| cyl   | Number of cylinders | (`r sort(unique(mtcars$cyl))`) |
+| disp  | Displacement (cu.in.) | (`r min(mtcars$disp)`, `r max(mtcars$disp)` |
+| hp    | Gross horsepower | (`r min(mtcars$hp)`, `r max(mtcars$hp)` |
+| drat  | Rear axle ratio | (`r min(mtcars$drat)`, `r max(mtcars$drat)` |
+| wt    | Weight (lb/1000) | (`r min(mtcars$wt)`, `r max(mtcars$wt)` |
+| qsec  | 1/4 mile time (seconds) | (`r min(mtcars$qsec)`, `r max(mtcars$qsec)` |
+| vs    | [V shaped engine](https://en.wikipedia.org/wiki/V_engine), [Straight engine](https://en.wikipedia.org/wiki/Straight_engine) | (0 = v-shaped, 1 = straight) |
+| am    | Transmission | (0 = automatic, 1 = manual) |
+| gear  | Number of forward gears | (`r sort(unique(mtcars$gear))`) |
+| carb  | Number of carburettors | (`r sort(unique(mtcars$carb))`) |
 
 Table: Fields in mtcars dataset
 
@@ -83,10 +83,10 @@ the transmission is categorical the predictions made by this model are just
 mileage sample means for their respective transmission types as is shown in the
 table below:
 
-| Transmission | Prediction | Mileage Sample Mean |
-|--------------|------------|--------------------|
-| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` |
-| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` |
+| Transmission | Prediction | Mileage Sample Mean | Mileage Standard Deviation |
+|--------------|:----------:|:-------------------:|:--------------------------:|
+| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 0, "mpg"]), 2)` |
+| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 1, "mpg"]), 2)` |
 
 Table: Model prediction vs mileage sample mean
 
@@ -157,7 +157,7 @@ values that are more evenly spread (homoscedasticity), without any distinct
 cluster or pattern. This further indicates a better model fit than the Simple
 linear Regression Model.
 
-Included in the Appendices is the [Figure: Multi Linear Regression: Normal
+Included in the appendices is the [Figure: Multi Linear Regression: Normal
 Q-Q](#appendices). This shows the models standardised residuals fit to the
 expected [Gaussian
 distribution](https://en.wikipedia.org/wiki/Normal_distribution).
