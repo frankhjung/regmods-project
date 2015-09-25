@@ -288,3 +288,31 @@ mean(modelMLR$residuals)
 modelSLRsum$cov.unscaled
 modelMLRsum$cov.unscaled
 ```
+
+# Confidence Interval for prediction
+
+```{r prediction-ci}
+require(datasets, quietly = TRUE)
+data(mtcars)
+
+modelSLR <- lm(mpg ~ am, mtcars)
+
+pred.means <- tapply(mtcars$mpg, mtcars$am, mean)
+pred.sd <- tapply(mtcars$mpg, mtcars$am, sd)
+pred.ci <- predict(modelSLR, data.frame(am = c(0, 1)), interval = "confidence")
+
+df <- data.frame("Transmission" = c("automatic", "manual"))
+df <- cbind(df, round(pred.ci, 2))
+df <- cbind(df, "Sample Mean" = round(pred.means, 2))
+df <- cbind(df, "Sample SD" = round(pred.sd, 2))
+names(df)[names(df) == "fit"] <- "Prediction"
+names(df)[names(df) == "lwr"] <- "Lower"
+names(df)[names(df) == "upr"] <- "Upper"
+
+kable(df, caption = "Model prediction vs mileage sample mean")
+```
+
+| Transmission | Prediction | Mileage Sample Mean | Mileage Standard Deviation |
+|--------------|:----------:|:-------------------:|:--------------------------:|
+| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 0, "mpg"]), 2)` |
+| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 1, "mpg"]), 2)` |

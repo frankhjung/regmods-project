@@ -83,12 +83,21 @@ the transmission is categorical the predictions made by this model are just
 mileage sample means for their respective transmission types as is shown in the
 table below:
 
-| Transmission | Prediction | Mileage Sample Mean | Mileage Standard Deviation |
-|--------------|:----------:|:-------------------:|:--------------------------:|
-| Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 0, "mpg"]), 2)` |
-| Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 1, "mpg"]), 2)` |
+```{r predictionSLR}
+pred.means <- tapply(mtcars$mpg, mtcars$am, mean)
+pred.sd <- tapply(mtcars$mpg, mtcars$am, sd)
+pred.ci <- predict(modelSLR, data.frame(am = c(0, 1)), interval = "confidence")
 
-Table: Model prediction vs mileage sample mean
+df <- data.frame("Transmission" = c("Automatic", "Manual"))
+df <- cbind(df, round(pred.ci, 2))
+df <- cbind(df, "Sample Mean" = round(pred.means, 2))
+df <- cbind(df, "Sample SD" = round(pred.sd, 2))
+names(df)[names(df) == "fit"] <- "Prediction"
+names(df)[names(df) == "lwr"] <- "Lower"
+names(df)[names(df) == "upr"] <- "Upper"
+
+kable(df, caption = "Model prediction vs mileage sample mean")
+```
 
 In [Figure: Fitted vs Residuals for Simple Linear Regression](#appendices) the
 plot shows increased variance (heteroscedasticity) about the mean for manual
