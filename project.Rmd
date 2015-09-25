@@ -136,21 +136,17 @@ the key statistics we can use to compare these two models:
 ```{r compare}
 fit.models <- c("Simple Linear Regression", "Multi Linear Regression")
 fit.r.squared <- c(modelSLRsum$adj.r.squared, modelMLRsum$adj.r.squared)
-fit.vif <- 1/(1 - fit.r.squared)
 fit.var.residuals <- c(modelSLRsum$sigma, modelMLRsum$sigma)
 fit.aic <- c(AIC(modelSLR), AIC(modelMLR))
-df <- data.frame("Model" = fit.models, "R Squared" = fit.r.squared, VIF = fit.vif, "Residual Variance" = fit.var.residuals, AIC = fit.aic)
+df <- data.frame("Model" = fit.models, "R Squared" = fit.r.squared, "Residual Variance" = fit.var.residuals, AIC = fit.aic)
 kable(df, caption = "Compare Models")
 ```
 
 There are a number of things to note from these statistics. Firstly, over
-`r round(modelMLRsum$adj.r.squared * 100)`% of the variation ($R^2$) is now
-explained by the [Multi Linear Regression
-Model](#multi-linear-regression-model). This also relates to the [variance
-inflation factor
-(VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor). Furthermore,
-the measure of residual variation has reduced. We have also seen an reduction in
-AIC.
+`r round(modelMLRsum$adj.r.squared * 100)`% of the variation ($R^2$) is now 
+explained by the [Multi Linear Regression 
+Model](#multi-linear-regression-model). Furthermore, the measure of residual
+variation has reduced. We have also seen an reduction in AIC.
 
 The [Figure: Fitted vs Residuals for Multi Linear Regression](#appendices) shows
 values that are more evenly spread (homoscedasticity), without any distinct
