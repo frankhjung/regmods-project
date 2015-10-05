@@ -4,7 +4,6 @@ title: "Motor Trend: Which is better Manual or Automatic?"
 # date: "22 September 2015"
 output:
   pdf_document:
-    fig_caption: no
     fig_crop: no
     latex_engine: xelatex
 classoption: legalpaper
@@ -155,7 +154,7 @@ There are a number of things to note from these statistics. Firstly, over
 `r round(modelMLRsum$adj.r.squared * 100)`% of the variation ($R^2$) is now 
 explained by the [Multi Linear Regression 
 Model](#multi-linear-regression-model). Furthermore, the measure of residual
-variation has reduced. We have also seen an reduction in AIC.
+variation has reduced. We have also seen a reduction in AIC.
 
 The [Figure: Fitted vs Residuals for Multi Linear Regression](#appendices) shows
 values that are more evenly spread (homoscedasticity), without any distinct
@@ -182,7 +181,7 @@ the automobiles weight and the time for a quarter mile.
 
 # Appendices
 
-```{r stepwise, fig.cap = "AIC Stepwise Regression", echo = TRUE}
+```{r stepwise, fig.cap = "AIC Stepwise Regression"}
 library(MASS)
 fit <- lm(mpg ~ ., mtcars)
 step <- stepAIC(fit, direction = "both", trace = 0)
