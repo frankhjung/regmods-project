@@ -161,6 +161,9 @@ fit <- lm(mpg ~ wt + qsec + am, mtcars)
 summary(fit)
 round(cor(mtcars[, c("mpg", "wt", "qsec", "am")]), 3)
 qplot(fitted(fit), resid(fit))
+# show other plots too
+par(mfrow = c(2, 2))
+plot(fit)
 ```
 
 ## boxplot
@@ -254,8 +257,6 @@ df <- modelSLRsum$coef
 df <- cbind(df, round(confint(modelSLR), 1))
 kable(df, caption = "Model Coefficients")
 
-
-
 modelMLR <- lm(mpg ~ wt + qsec + am, mtcars)
 modelMLRsum <- summary(modelMLR)
 
@@ -316,3 +317,37 @@ kable(df, caption = "Model prediction vs mileage sample mean")
 |--------------|:----------:|:-------------------:|:--------------------------:|
 | Automatic | `r round(predict(modelSLR, data.frame(am = 0)), 2)` | `r round(mean(with(mtcars, mtcars[am == 0, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 0, "mpg"]), 2)` |
 | Manual | `r round(predict(modelSLR, data.frame(am = 1)), 2)` | `r round(mean(with(mtcars, mtcars[am == 1, "mpg"])), 2)` | `r round(sd(mtcars[mtcars$am == 1, "mpg"]), 2)` |
+
+
+Leverage & Influence
+====================
+
+dfbetas
+-------
+
+to show outliers
+
+```{r dfbetas}
+require(datasets, quietly = TRUE)
+data(mtcars)
+
+fit <- lm(mpg ~ wt + qsec + am, mtcars)
+par(mfrow = c(2, 2))
+plot(mtcars$mpg, dfbetas(fit)[, 1], main = "dfbetas(automatic) vs mpg")
+plot(mtcars$mpg, dfbetas(fit)[, 2], main = "dfbetas(wt) vs mpg")
+plot(mtcars$mpg, dfbetas(fit)[, 3], main = "dfbetas(qsec) vs mpg")
+plot(mtcars$mpg, dfbetas(fit)[, 4], main = "dfbetas(manual vs mpg")
+# show values
+round(dfbetas(fit), 3)
+```
+
+hatvalues
+---------
+
+to show outliers
+
+```{r hatvalues}
+plot(mtcars$mpg, hatvalues(modelMLR), main = "hatvalue vs mpg")
+# show values
+hatvalues(modelMLR)
+```
